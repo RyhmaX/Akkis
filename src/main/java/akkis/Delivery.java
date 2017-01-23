@@ -8,15 +8,22 @@ import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.bean.ViewScoped;
 
-@ViewScoped
+@RequestScoped
 @ManagedBean
 @Entity
-@NamedQuery(name = "searchAllDeliveries", query = "SELECT d from Delivery d") 
+@NamedQueries({
+	@NamedQuery(name = "searchAllDeliveries", query = "SELECT d from Delivery d"),
+	@NamedQuery(name = "deliveryById", query = "SELECT d from Delivery d WHERE d.id = :id")
+})
 public class Delivery implements Serializable {
+	
+	@EJB
+    private AkkisEjb ejb;
 	
 	@Id
 	@SequenceGenerator(name = "id_seq_delivery", sequenceName = "Delivery_ID_SEQ")
@@ -29,6 +36,7 @@ public class Delivery implements Serializable {
 //	private Invoice invoice = new Invoice();
 //	private boolean edit;
 	
+	private List<DeliveryProduct> products;	
 	
 	public Delivery() {
 		super();
@@ -45,44 +53,18 @@ public class Delivery implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}
+	
+	private String name;	
 
-	/*
-	public void addRow() {
-		invoices.add(new Invoice());
+	public String getName() {
+		return name;
 	}
-	
-	
-		
-	public void addRow() {
-		invoice.setId(invoices.isEmpty() ? 1 : invoices.get(invoices.size() - 1).getId() + 1);
-		invoices.add(new Invoice());
-	//	invoice = new Invoice();
+
+
+	public void setName(String name) {
+		this.name = name;
 	}
-	
-	/*
-	public void edit(Invoice invoice) {
-		this.invoice = invoice;
-		edit = true;
-	}
-	
-	public void save() {
-		invoice = new Invoice();
-		edit = false;
-	}
-	
-	public void delete(Invoice invoice) {
-		deliveries.remove(invoice);
-	}
-	
-	public Invoice getInvoice() {
-		return invoice;
-	}
-	
-	public boolean isEdit() {
-		return edit;
-	}
-	*/
-	
+
 
 	public List<Invoice> getInvoices() {
 		return invoices;
@@ -92,8 +74,33 @@ public class Delivery implements Serializable {
 	public void setInvoices(List<Invoice> invoices) {
 		this.invoices = invoices;
 	}
-
 	
+	public List<DeliveryProduct> getProducts() {
+		return products;
+	}
+
+	public void addProduct(Product product)
+	{
+		DeliveryProduct dp = new DeliveryProduct();
+		dp.setProduct(product);
+		addProduct(dp);
+	}
+	
+	public void addProduct(DeliveryProduct dp)
+	{
+		dp.setDelivery(this);
+		products.add(dp);
+		
+		ejb.save(dp);
+		ejb.saveChanges(this);
+	}
+
+
+	public void setProducts(List<DeliveryProduct> products) {
+		this.products = products;
+	}
+
+
 	@Override
 	public String toString() {
 		return "Delivery [id=" + id + ", invoices=" + invoices + "]";
