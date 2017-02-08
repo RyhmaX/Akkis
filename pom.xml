@@ -19,11 +19,6 @@
 
 	<dependencies>
 		<dependency>
-		      <groupId>com.google.appengine</groupId>
-		      <artifactId>appengine-api-1.0-sdk</artifactId>
-		      <version>${appengine.target.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-web-api</artifactId>
 			<version>7.0</version>
@@ -102,8 +97,12 @@
 					</webApp>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>appengine-maven-plugin</artifactId>
+				<version>${appengine-maven-plugin-version}</version>
+			</plugin>
 		</plugins>
-		
-		
 	</build>
 </project>
