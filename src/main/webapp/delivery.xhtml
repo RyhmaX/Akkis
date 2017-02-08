@@ -5,7 +5,10 @@
 	xmlns:b="http://bootsfaces.net/ui"
 	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-	<ui:param name="title" value="Delivery" />
+	<ui:param name="title" value="Deliveries" />
+    <ui:param name="tab" value="deliveries" />
+
+    <ui:param name="pagePermission" value="#{loginUser.can('VIEW_DELIVERIES')}" />
 
 	<ui:define name="content">
 		<h:form>
