@@ -7,8 +7,11 @@
 	<packaging>war</packaging>
 	
 	<properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jsf.version>2.0</jsf.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jsf.version>2.0</jsf.version>
+		<appengine.app.version>1</appengine.app.version>
+	    	<appengine.target.version>1.9.49</appengine.target.version>
+		<appengine-maven-plugin-version>1.0.0</appengine-maven-plugin-version>
     </properties>
 	
 	 <parent>
