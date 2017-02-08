@@ -72,6 +72,18 @@
 			<version>1.9.5</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+		      <groupId>com.google.appengine</groupId>
+		      <artifactId>appengine-testing</artifactId>
+		      <version>${appengine.target.version}</version>
+		      <scope>test</scope>
+		    </dependency>
+		    <dependency>
+		      <groupId>com.google.appengine</groupId>
+		      <artifactId>appengine-api-stubs</artifactId>
+		      <version>${appengine.target.version}</version>
+		      <scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
