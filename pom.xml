@@ -8,6 +8,8 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.7</maven.compiler.source>
 		<jsf.version>2.0</jsf.version>
 		<appengine.app.version>1</appengine.app.version>
 	    	<appengine.target.version>1.9.49</appengine.target.version>
