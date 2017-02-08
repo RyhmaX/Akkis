@@ -10,8 +10,19 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jsf.version>2.0</jsf.version>
     </properties>
+	
+	 <parent>
+	    <groupId>com.google.cloud.samples</groupId>
+	    <artifactId>shared-configuration</artifactId>
+	    <version>1.0.1</version>
+	</parent>
 
 	<dependencies>
+		<dependency>
+		      <groupId>com.google.appengine</groupId>
+		      <artifactId>appengine-api-1.0-sdk</artifactId>
+		      <version>${appengine.target.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-web-api</artifactId>
