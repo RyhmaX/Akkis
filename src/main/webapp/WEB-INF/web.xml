@@ -13,7 +13,22 @@
 	
 	<context-param>
 	    <param-name>BootsFaces_USETHEME</param-name>
+	    <param-value>true</param-value>
+	</context-param>
+	
+	<context-param>
+	    <param-name>BootsFaces_THEME</param-name>
 	    <param-value>default</param-value>
+	</context-param>
+	
+	<context-param>
+	    <param-name>currency_symbol</param-name>
+	    <param-value>€</param-value>
+	</context-param>
+	
+	<context-param>
+	    <param-name>currency_locale</param-name>
+	    <param-value>fi-FI</param-value>
 	</context-param>
 	
 	<servlet>

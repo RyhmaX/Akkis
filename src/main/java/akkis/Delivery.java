@@ -91,7 +91,7 @@ public class Delivery implements Serializable {
 		this.products = products;
 	}
 	
-	public void createInvoice() {
+	public Invoice createInvoice() {
 		
 		Invoice invoice = new Invoice();
 		invoice.setDate(new Date());
@@ -103,14 +103,24 @@ public class Delivery implements Serializable {
 		
 		for (Iterator<DeliveryProduct> iterator = products.iterator(); iterator.hasNext();) {
 			DeliveryProduct dp = iterator.next();
+			InvoiceRow r = new InvoiceRow();
 			
-			sum += dp.getProduct().getPrice();
+			r.setInvoice(invoice);
+			r.setText(dp.getProduct().getName());
+			r.setAmount(1);
+			r.setUnitPrice(dp.getProduct().getPrice());
+			
+			invoice.addRow(r);
+			
+			sum += r.getRowTotal();
 		}
 		
 		invoice.setSum(sum);
 		invoice.setStatus(InvoiceStatus.OPEN);
 		
 		invoices.add(invoice);
+		
+		return invoice;
 	}
 
 

@@ -21,7 +21,7 @@ import net.bootsfaces.utils.FacesMessages;
 public class CompanyController {
 
 	@EJB
-	private AkkisEjb tuoteEjb;
+	private AkkisEjb ejb;
 	
 	@ManagedProperty(value = "#{company}")
 	private Company company;
@@ -38,40 +38,25 @@ public class CompanyController {
 		this.company = company;
 	}
 	
-	public String saveCompany() {
+	public String newCompany(Company company) {
 		
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		// JSF:ssa luodun beanin nimellä päästään olioon kiinni "fish"
-		// (faces-config.xml)
-		Company co = (Company) facesContext.getExternalContext().getRequestMap().get("company");
-		System.out.println("Company:" + co);
-		tuoteEjb.save(co);
+		ejb.save(company);
 		
-		FacesMessages.info("Successfully saved.");
+		Akkis.info("Company Created");
 		
-		return null;
-		
+		return "/companies/edit?id=" + company.getId() + "&faces-redirect=true";	
 	}
 	
-	public String saveCompany(Company customer) {
-		//tuoteEjb.save(customer);
+	public String updateCompany(Company company) {		
+		ejb.update(company);
 		
-		tuoteEjb.saveChanges(customer);
+		Akkis.info("Company updated");
 		
-		FacesMessages.info("Successfully saved.");
-		
-		return "company?faces-redirect=true";
+		return "/companies/index?faces-redirect=true";
 	}
 
 	public List<Company> getCompanies() {
-		return tuoteEjb.getCompanies();
+		return ejb.getCompanies();
 	}
-
-	
-	public String initCompany() {
-		tuoteEjb.init();
-		return null;
-	}
-
 	
 }

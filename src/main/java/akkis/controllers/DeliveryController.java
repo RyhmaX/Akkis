@@ -23,7 +23,7 @@ import net.bootsfaces.utils.FacesMessages;
 public class DeliveryController {
 
 	@EJB
-	private AkkisEjb tuoteEjb;
+	private AkkisEjb ejb;
 
 	@ManagedProperty(value = "#{delivery}")
 	private Delivery delivery;
@@ -40,21 +40,20 @@ public class DeliveryController {
 		this.delivery = delivery;
 	}
 
-	public String saveDelivery() {
-
-		tuoteEjb.save(delivery);
-
-		FacesMessages.info("Successfully saved.");
-
-		return null;
+	public String saveDelivery(Delivery delivery) {
+		ejb.save(delivery);
+		
+		Akkis.info("Delivery created");
+		
+		return "/deliveries/show?id=" + delivery.getId() + "&faces-redirect=true";
 	}
 	
-	public String saveDelivery(Delivery delivery) {
-		tuoteEjb.saveChanges(delivery);
+	public String updateDelivery(Delivery delivery) {
+		ejb.update(delivery);
 		
-		FacesMessages.info("Successfully saved.");
+		Akkis.info("Delivery updated");
 		
-		return "delivery?faces-redirect=true";
+		return "/deliveries/show?id=" + delivery.getId() + "&faces-redirect=true";
 	}
 	
 	public String addProductToDelivery(Product p) {
@@ -73,39 +72,31 @@ public class DeliveryController {
 		
 		delivery.addProduct(dp);
 		
-		tuoteEjb.saveChanges(delivery);
+		ejb.update(delivery);
 		
-		FacesMessages.info("Successfully saved.");
+		Akkis.info("Product added to delivery");
 		
-		return "deliveryShow?id=" + delivery.getId() + "&faces-redirect=true";
+		return "/deliveries/show?id=" + delivery.getId() + "&faces-redirect=true";
 	}
 	
 	public String createInvoice()
 	{
-		
 		return createInvoice(delivery);
 	}
 
 	public String createInvoice(Delivery delivery)
 	{
 	
-		delivery.createInvoice();
-		tuoteEjb.saveChanges(delivery);
+		Invoice invoice = delivery.createInvoice();
+		ejb.update(delivery);
 		
-		FacesMessages.info("Invoice created!");
+		Akkis.info("Invoice created!");
 		
-		
-		
-		return null;
+		return "/invoices/show?id=" + invoice.getId() + "&faces-redirect=true";
 	}
 
 	public List<Delivery> getDeliveries() {
-		return tuoteEjb.getDeliveries();
-	}
-
-	public String initDelivery() {
-		tuoteEjb.init();
-		return null;
+		return ejb.getDeliveries();
 	}
 
 }

@@ -8,6 +8,8 @@ import javax.faces.context.FacesContext;
 import akkis.AkkisEjb;
 import akkis.Delivery;
 import akkis.Invoice;
+import akkis.InvoiceRow;
+import akkis.types.InvoiceStatus;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -20,10 +22,13 @@ import net.bootsfaces.utils.FacesMessages;
 public class InvoiceController {
 
 	@EJB
-	private AkkisEjb tuoteEjb;
+	private AkkisEjb ejb;
 	
 	@ManagedProperty(value = "#{invoice}")
 	private Invoice invoice;
+	
+	@ManagedProperty(value = "#{invoiceRow}")
+	private InvoiceRow invoiceRow;
 
 	public InvoiceController() {
 		
@@ -37,15 +42,20 @@ public class InvoiceController {
 		this.invoice = invoice;
 	}
 
-	public String saveInvoice() {
-		FacesContext facesContext = FacesContext.getCurrentInstance();
+	public InvoiceRow getInvoiceRow() {
+		return invoiceRow;
+	}
 
-		Invoice in = (Invoice) facesContext.getExternalContext().getRequestMap().get("invoice");
-		tuoteEjb.save(in);
+	public void setInvoiceRow(InvoiceRow invoiceRow) {
+		this.invoiceRow = invoiceRow;
+	}
+
+	public String saveNewInvoice(Invoice invoice) {
+		ejb.save(invoice);
 		
-		FacesMessages.info("Successfully saved.");
+		Akkis.info("Invoie Created");
 		
-		return null;
+		return "/invoices/show?faces-redirect=true&id=" + invoice.getId();
 	}
 	
 	public String saveInvoice(Delivery delivery) {
@@ -55,27 +65,103 @@ public class InvoiceController {
 		
 		in.setDelivery(delivery);
 		
-		tuoteEjb.save(in);
+		ejb.save(in);
 		
-		FacesMessages.info("Successfully saved.");
+		Akkis.info("Invoie Created");
 		
 		return null;
 	}
 	
 	public String saveInvoice(Invoice invoice) {
-		tuoteEjb.saveChanges(invoice);
+		ejb.update(invoice);
 		
-		FacesMessages.info("Successfully saved.");
+		Akkis.info("Invoice Updated");
+		
+		return "/invoices/show?faces-redirect=true&id=" + invoice.getId();
+	}
+	
+	public String addRowToInvoice(Invoice invoice, InvoiceRow invoiceRow) {
+		
+		invoice.addRow(invoiceRow);
+		
+		invoice.setSum(invoice.calculateSum());
+		
+		ejb.update(invoice);
+		
+		Akkis.info("Item added to Invoice");
+		
+		return "/invoices/show?faces-redirect=true&id=" + invoice.getId();
+	}
+	
+	public String update(InvoiceRow invoiceRow) {
+		ejb.update(invoiceRow);
+		
+		Akkis.info("Item Updated");
+		
+		return "/invoices/show?faces-redirect=true&id=" + invoiceRow.getInvoice().getId();
+	}
+	
+	public String markOpen(Invoice invoice) {
+		
+		if (invoice.getStatus() == InvoiceStatus.OPEN)
+		{
+			Akkis.error("Can't change status");
+			return null;
+		}
+				
+		invoice.setStatus(InvoiceStatus.OPEN);
+		
+		ejb.update(invoice);
+		
+		Akkis.info("Invoice Open");
+		
+		return null;
+	}
+	
+	public String markPaid(Invoice invoice) {
+		
+		if (invoice.getStatus() != InvoiceStatus.OPEN)
+		{
+			Akkis.error("Can't change status");
+			return null;
+		}
+			
+		invoice.setStatus(InvoiceStatus.PAID);
+		
+		ejb.update(invoice);
+		
+		Akkis.info("Invoice Paid");
+		
+		return null;
+	}
+	
+	public String markVoid(Invoice invoice) {
+		
+		if (invoice.getStatus() != InvoiceStatus.OPEN)
+		{
+			Akkis.error("Can't change status");
+			return null;
+		}		
+		
+		invoice.setStatus(InvoiceStatus.VOIDED);
+		
+		ejb.update(invoice);
+		
+		Akkis.info("Invoice Voided");
 		
 		return null;
 	}
 
 	public List<Invoice> getInvoices() {
-		return tuoteEjb.getInvoices();
+		return ejb.getInvoices();
+	}
+	
+	public List<Invoice> getOpenInvoices() {
+		return ejb.getOpenInvoices();
 	}
 	
 	public List<Invoice> getInvoices(Delivery delivery) {
-		return tuoteEjb.getInvoices(delivery);
+		return ejb.getInvoices(delivery);
 	}
 	
 }

@@ -5,16 +5,41 @@
     xmlns:b="http://bootsfaces.net/ui"
     xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-    <ui:param name="title" value="Akkis" />
+    <ui:param name="title" value="Home" />
     <ui:param name="tab" value="home" />
 
     <ui:define name="content">
-		<h:form id="adminform">
-			<table>
-				<tr>
-					<td><h:commandButton action="#{loginController.init()}" value="Lisää oletusdata" /></td>
-				</tr>
-			</table>
-		</h:form>
+    
+	    <b:row>
+		    <b:column small-screen="4" medium-screen="4" rendered="#{userInfo.can('VIEW_INVOICES')}">
+		    	
+		    	<b:panel>
+		    		<f:facet name="heading">
+		    			Open Invoices
+		    		</f:facet>
+		    		
+		    		<ul>
+			    		<ui:repeat var="i" value="#{invoiceController.openInvoices}">
+			    			<li><h:link outcome="/invoices/show.xhtml" value="Invoice ##{i.id}">
+			                	<f:param name="id" value="#{i.id}" />
+			                </h:link>
+	                		- 
+					     	<h:outputText value="#{i.sum}">
+								<f:convertNumber type="currency" currencySymbol="#{initParam['currency_symbol']}" locale="#{initParam['currency_locale']}" />
+							</h:outputText>
+							-
+					     	<h:outputText value="#{i.date}" >
+						    	<f:convertDateTime pattern="dd.MM.yyyy" />
+							</h:outputText></li>
+			    		</ui:repeat>
+		    		</ul>
+		    	</b:panel>
+		    	
+		    </b:column>
+	  	</b:row>
+    
+		<b:form id="adminform">
+			<b:commandButton action="#{loginController.init()}" value="Lisää oletusdata" />
+		</b:form>
     </ui:define>
 </ui:composition>

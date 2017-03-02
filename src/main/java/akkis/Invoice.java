@@ -3,6 +3,7 @@ package akkis;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.*;
@@ -21,9 +22,10 @@ import javax.faces.bean.RequestScoped;
 @Entity
 @RequestScoped
 @NamedQueries({
-	@NamedQuery(name = "searchAllInvoices", query = "SELECT i from Invoice i"),
+	@NamedQuery(name = "searchAllInvoices", query = "SELECT i from Invoice i ORDER BY i.date DESC"),
 	@NamedQuery(name = "invoiceById", query = "SELECT i from Invoice i WHERE i.id = :id"),
 	@NamedQuery(name = "invoicesForDelivery", query = "SELECT i from Invoice i WHERE i.delivery = :delivery"),
+	@NamedQuery(name = "invoicesByStatus", query = "SELECT i from Invoice i WHERE i.status = :status ORDER BY i.date"),
 })
 public class Invoice {
 
@@ -35,9 +37,10 @@ public class Invoice {
 	@ManyToOne
 	private Delivery delivery;
 	
-	@DecimalMin("0.01")
+	@DecimalMin("0.0")
 	@DecimalMax("99999.99")
 	private double sum;
+	
 	private Date date;
 	
 	@Min(1)
@@ -53,7 +56,9 @@ public class Invoice {
 	private List<InvoiceRow> rows = new ArrayList<InvoiceRow>();	
 	
 	public Invoice() {	
-		date = new Date();	
+		date = new Date();
+		status = InvoiceStatus.NOT_SENT;
+		duePeriod = 14;
 	}	
 
 	public long getId() {
@@ -116,6 +121,35 @@ public class Invoice {
 	{
 		row.setInvoice(this);
 		rows.add(row);
+	}
+
+	public List<InvoiceRow> getRows() {
+		return rows;
+	}
+
+	public void setRows(List<InvoiceRow> rows) {
+		this.rows = rows;
+	}
+	
+	public double calculateSum()
+	{
+		double sum = 0;
+		
+		for (InvoiceRow invoiceRow : rows) {
+			sum += invoiceRow.getRowTotal();
+		}
+		
+		return sum;
+	}
+	
+	public boolean canAddItems()
+	{
+		return status == InvoiceStatus.NOT_SENT;
+	}
+	
+	public boolean isOpen()
+	{
+		return status == InvoiceStatus.OPEN;
 	}
 
 	@Override

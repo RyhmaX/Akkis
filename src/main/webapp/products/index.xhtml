@@ -1,0 +1,38 @@
+<ui:composition template="/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+	<ui:param name="title" value="Product" />
+    <ui:param name="tab" value="product" />
+
+    <ui:param name="pagePermission" value="VIEW_PRODUCTS" />
+
+	<ui:define name="content">
+		<h2>Products</h2>
+		
+		<b:buttonGroup styleClass="btn-pad">
+		    <b:button icon="plus-sign" value="New" outcome="new" size="sm" />
+		</b:buttonGroup>	
+		
+		<b:dataTable value="#{productController.products}" var="pd">
+			<h:column headerstyleClass="first">
+				<f:facet name="header">Name</f:facet>
+				
+				<h:link outcome="edit" value="#{pd.name}" disabled="#{!userInfo.can('EDIT_PRODUCTS')}">
+					<f:param name="id" value="#{pd.id}" />
+				</h:link>
+            </h:column>
+			<h:column>
+				<f:facet name="header">Price</f:facet>
+                
+                 <h:outputText value="#{pd.price}">
+					<f:convertNumber type="currency" currencySymbol="#{initParam['currency_symbol']}" locale="#{initParam['currency_locale']}" />
+				</h:outputText>
+            </h:column>
+		</b:dataTable>
+
+	</ui:define>
+</ui:composition>

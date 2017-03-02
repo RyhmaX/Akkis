@@ -1,0 +1,53 @@
+<ui:composition template="/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+	<ui:param name="title" value="Customer" />
+    <ui:param name="tab" value="customer" />
+
+    <ui:param name="pagePermission" value="VIEW_CUSTOMERS" />
+
+	<ui:define name="content">
+		<h2>Customers</h2>
+		
+		<b:buttonGroup styleClass="btn-pad">
+		    <b:button icon="plus-sign" value="New" outcome="new" size="sm" />
+		</b:buttonGroup>
+		
+		<b:dataTable value="#{customerController.customers}" var="ca">
+			<h:column headerstyleClass="first">
+				<f:facet name="header">Name</f:facet>
+                <h:link outcome="edit.xhtml" value="#{ca.name}" disabled="#{!userInfo.can('EDIT_CUSTOMERS')}">
+                	<f:param name="id" value="#{ca.id}" />
+                </h:link>
+            </h:column>
+			<h:column>
+				<f:facet name="header">Address</f:facet>
+                #{ca.address}
+            </h:column>
+			<h:column>
+				<f:facet name="header">Country</f:facet>
+                #{ca.country}
+            </h:column>
+			<h:column>
+				<f:facet name="header">Email</f:facet>
+                 #{ca.email}
+            </h:column>
+			<h:column>
+				<f:facet name="header">Phone Number</f:facet>
+                #{ca.phoneNumber}
+            </h:column>
+			<h:column>
+				<f:facet name="header">Status</f:facet>
+                #{ca.status.label}
+            </h:column>
+			<h:column>
+				<f:facet name="header">Responsibility Seller</f:facet>
+                #{ca.responsibilitySeller} 
+        	</h:column>
+		</b:dataTable>
+	</ui:define>
+</ui:composition>

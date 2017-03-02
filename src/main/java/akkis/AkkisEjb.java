@@ -4,10 +4,13 @@ package akkis;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import akkis.controllers.LoginUser;
+import akkis.beans.UserInfo;
+import akkis.types.InvoiceStatus;
 import akkis.types.Role;
 import akkis.types.Status;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -122,7 +125,7 @@ public class AkkisEjb {
 		em.persist(book);
 	}
 	
-	public void saveChanges(Object book) {
+	public void update(Object book) {
 		em.merge(book);
 	}
 	
@@ -142,16 +145,14 @@ public class AkkisEjb {
 		catch (javax.persistence.NoResultException ex)
 		{
 			return null;
-		}	
+		}
 	}
 	
-	public User getUser(LoginUser loginUser) {
-		
+	public User getUser(String username) {
 		try {
-			User user = (User) em.createNamedQuery("userLogin")
-				.setParameter("user",loginUser.getUsername())
-				.setParameter("password", loginUser.getPassword()).getSingleResult();
-			
+			User user = (User) em.createNamedQuery("userByLogin")
+				.setParameter("user", username).getSingleResult();
+				
 			return user;
 		}
 		catch (javax.persistence.NoResultException ex)
@@ -173,6 +174,13 @@ public class AkkisEjb {
 
 		return companies;
 	}
+	
+	public List<Invoice> getOpenInvoices() {
+		List<Invoice> invoices = null;
+		invoices = em.createNamedQuery("invoicesByStatus").setParameter("status", InvoiceStatus.OPEN).getResultList();
+
+		return invoices;
+	}
 
 	public List<Invoice> getInvoices() {
 		List<Invoice> invoices = null;
@@ -191,10 +199,24 @@ public class AkkisEjb {
 	public Invoice getInvoice(Long id) {
 		
 		try {
-			Invoice user = (Invoice) em.createNamedQuery("invoiceById")
+			Invoice invoice = (Invoice) em.createNamedQuery("invoiceById")
 				.setParameter("id", id).getSingleResult();
 			
-			return user;
+			return invoice;
+		}
+		catch (javax.persistence.NoResultException ex)
+		{
+			return null;
+		}	
+	}
+	
+	public InvoiceRow getInvoiceRow(Long id) {
+		
+		try {
+			InvoiceRow invoiceRow = (InvoiceRow) em.createNamedQuery("invoiceRowById")
+				.setParameter("id", id).getSingleResult();
+			
+			return invoiceRow;
 		}
 		catch (javax.persistence.NoResultException ex)
 		{
@@ -205,10 +227,10 @@ public class AkkisEjb {
 	public Delivery getDelivery(Long id) {
 		
 		try {
-			Delivery user = (Delivery) em.createNamedQuery("deliveryById")
+			Delivery delivery = (Delivery) em.createNamedQuery("deliveryById")
 				.setParameter("id", id).getSingleResult();
 			
-			return user;
+			return delivery;
 		}
 		catch (javax.persistence.NoResultException ex)
 		{
@@ -219,10 +241,10 @@ public class AkkisEjb {
 	public Company getCompany(Long id) {
 		
 		try {
-			Company user = (Company) em.createNamedQuery("companyById")
+			Company company = (Company) em.createNamedQuery("companyById")
 				.setParameter("id", id).getSingleResult();
 			
-			return user;
+			return company;
 		}
 		catch (javax.persistence.NoResultException ex)
 		{
@@ -272,6 +294,5 @@ public class AkkisEjb {
 		deliveries = em.createNamedQuery("searchAllDeliveries").getResultList();
 		return deliveries;
 	}
-
 		
 }

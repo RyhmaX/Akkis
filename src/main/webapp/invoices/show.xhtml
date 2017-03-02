@@ -1,0 +1,128 @@
+<ui:composition template="/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+	
+	<ui:define name="metadata">
+		<f:metadata>
+		    <f:viewParam name="id" value="#{invoiceController.invoice}"
+		        converter="#{invoiceConverter}" converterMessage="Unknown Invoice"
+		        required="true" requiredMessage="Bad request, please use a link from within the system."
+		    />
+		</f:metadata>
+    </ui:define>
+    
+	<ui:param name="title" value="Invoice ##{invoiceController.invoice.id}" />
+    <ui:param name="tab" value="invoice" />
+    
+    <ui:param name="pagePermission" value="VIEW_INVOICES" />
+
+	<ui:define name="content">
+	
+		<h2>Invoice ##{invoiceController.invoice.id}</h2>
+		
+		<b:form id="invoiceControl">
+			<b:buttonGroup styleClass="btn-pad" size="sm">
+			    <b:button icon="pencil" value="Edit" 
+			    	outcome="edit"
+			    	rendered="#{userInfo.can('EDIT_INVOICES')}">
+			    	<f:param name="id" value="#{invoiceController.invoice.id}" />
+			   	</b:button>
+			   	<b:button icon="print" value="Print" 
+			    	outcome="print">
+			    	<f:param name="id" value="#{invoiceController.invoice.id}" />
+			   	</b:button>
+			   	<b:commandButton id="open" icon="ok" value="Mark Open" 
+			   		action="#{invoiceController.markOpen(invoiceController.invoice)}" 
+			    	rendered="#{userInfo.can('EDIT_INVOICES') and ((facesContext.postback and not facesContext.renderResponse) or !invoiceController.invoice.open)}">
+			   	</b:commandButton>
+			   	<b:commandButton id="paid" icon="ok" value="Mark Paid" 
+			   		action="#{invoiceController.markPaid(invoiceController.invoice)}"
+			    	rendered="#{userInfo.can('EDIT_INVOICES') and ((facesContext.postback and not facesContext.renderResponse) or invoiceController.invoice.open)}">
+			   	</b:commandButton>
+			   	<b:commandButton id="void" icon="remove" value="Mark Void" 
+			   		action="#{invoiceController.markVoid(invoiceController.invoice)}" 
+			    	rendered="#{userInfo.can('EDIT_INVOICES') and ((facesContext.postback and not facesContext.renderResponse) or invoiceController.invoice.open)}">
+			   	</b:commandButton>
+			</b:buttonGroup>
+		</b:form>
+		
+		<b:row>
+		    <b:column small-screen="1" medium-screen="1">
+		      <strong><h:outputText value="Status"/></strong>
+		    </b:column>
+		    <b:column small-screen="1" medium-screen="1">
+		      <strong><h:outputText value="Sum"/></strong>
+		    </b:column>
+		    <b:column small-screen="1" medium-screen="1">
+		      <strong><h:outputText value="Date"/></strong>
+		    </b:column>
+		    <b:column small-screen="1" medium-screen="1">
+		      <strong><h:outputText value="Due"/></strong>
+		    </b:column>
+		    <b:column small-screen="1" medium-screen="1">
+		      <strong><h:outputText value="Delivery"/></strong>
+		    </b:column>
+	  	</b:row>
+	  	
+	  	<b:row>
+		    <b:column small-screen="1" medium-screen="1">
+		     	#{invoiceController.invoice.status.label}
+		    </b:column>
+   		    <b:column small-screen="1" medium-screen="1">
+		     	<h:outputText value="#{invoiceController.invoice.sum}">
+					<f:convertNumber type="currency" currencySymbol="#{initParam['currency_symbol']}" locale="#{initParam['currency_locale']}" />
+				</h:outputText>
+		    </b:column>
+		   	<b:column small-screen="1" medium-screen="1">
+		     	<h:outputText value="#{invoiceController.invoice.date}" >
+			    	<f:convertDateTime pattern="dd.MM.yyyy" />
+				</h:outputText>
+		    </b:column>
+		    <b:column small-screen="1" medium-screen="1">
+		     	#{invoiceController.invoice.duePeriod} days
+		    </b:column>
+		    <b:column small-screen="1" medium-screen="1">
+  				<h:link outcome="/deliveries/show" value="#{invoiceController.invoice.delivery.name}" rendered="#{invoiceController.invoice.delivery != null}">
+                	<f:param name="id" value="#{invoiceController.invoice.delivery.id}" />
+                </h:link>
+		    </b:column>
+	  	</b:row>
+		
+		<b:dataTable value="#{invoiceController.invoice.rows}" var="r" paginated="false" searching="false">
+			<h:column headerstyleClass="first">
+				<f:facet name="header">Item</f:facet>
+				<h:link outcome="row.xhtml" value="#{r.text}" disabled="#{userInfo.can('EDIT_INVOICES') || !invoiceController.invoice.canAddItems()}">
+                	<f:param name="id" value="#{r.id}" />
+                </h:link>
+            </h:column>
+            <h:column>
+				<f:facet name="header">Price</f:facet>
+                #{r.amount} x 
+		     	<h:outputText value="#{r.unitPrice}">
+					<f:convertNumber type="currency" currencySymbol="#{initParam['currency_symbol']}" locale="#{initParam['currency_locale']}" />
+				</h:outputText>
+            </h:column>
+			<h:column>
+				<f:facet name="header">Sum</f:facet>
+		     	<h:outputText value="#{r.rowTotal}">
+					<f:convertNumber type="currency" currencySymbol="#{initParam['currency_symbol']}" locale="#{initParam['currency_locale']}" />
+				</h:outputText>
+            </h:column>
+		</b:dataTable>
+		
+		
+		<b:form id="rowform" rendered="#{userInfo.can('EDIT_INVOICES') and invoiceController.invoice.canAddItems()}">
+			<h3>Add Item</h3>
+				
+			<ui:include src="rowForm.xhtml">
+				<ui:param name="invoiceRow" value="#{invoiceRow}" />
+			</ui:include>
+			
+			<b:commandButton ajax="true" update="@Form" value="Add" action="#{invoiceController.addRowToInvoice(invoiceController.invoice, invoiceRow)}" />
+		</b:form>
+		
+	</ui:define>
+</ui:composition>

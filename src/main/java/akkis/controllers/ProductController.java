@@ -20,7 +20,7 @@ import net.bootsfaces.utils.FacesMessages;
 public class ProductController {
 
 	@EJB
-	private AkkisEjb tuoteEjb;
+	private AkkisEjb ejb;
 	
 	@ManagedProperty(value = "#{product}")
 	private Product product;
@@ -38,32 +38,25 @@ public class ProductController {
 		this.product = product;
 	}
 
-	public String saveProduct() {
-
-		FacesContext facesContext = FacesContext.getCurrentInstance();
-		// JSF:ssa luodun beanin nimellä päästään olioon kiinni "fish"
-		// (faces-config.xml)
-		Product pd = (Product) facesContext.getExternalContext().getRequestMap().get("product");
-		System.out.println("Product:" + pd);
-		tuoteEjb.save(pd);
+	public String saveProduct(Product product) {
 		
-		FacesMessages.info("Successfully saved.");
-				
-		return null;
+		Akkis.info("Product created");
+		
+		ejb.save(product);
+		
+		return "/products/index?faces-redirect=true";
 	}
 	
-	public String saveProduct(Product product) {
-		//tuoteEjb.save(customer);
+	public String updateProduct(Product product) {		
+		ejb.update(product);
 		
-		tuoteEjb.saveChanges(product);
+		Akkis.info("Product updated");
 		
-		FacesMessages.info("Successfully saved.");
-		
-		return "product?faces-redirect=true";
+		return "/products/index?faces-redirect=true";
 	}
 
 	public List<Product> getProducts() {
-		return tuoteEjb.getProducts();
+		return ejb.getProducts();
 	}
 
 }
